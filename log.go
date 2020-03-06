@@ -248,6 +248,8 @@ func handleLogMessage(message *logMessage) {
 
 	}
 
+	defer resp.Body.Close()
+
 }
 
 func handleBulkLogMessage(message *logMessage) {
@@ -295,6 +297,8 @@ func flush() {
 		}
 
 	}
+
+	defer resp.Body.Close()
 }
 
 func start() {
