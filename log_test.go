@@ -25,17 +25,12 @@ func TestSetupBulkLogger(t *testing.T) {
 func TestInfod(t *testing.T) {
 	SetupLogger("yourlogglytoken", 0, []string{"test"}, false, true)
 
-	type testStruct struct {
-		Name string
-		Kind string
+	data := map[string]interface{}{
+		"Name": "Logan",
+		"Kind": "Log",
 	}
 
-	test := &testStruct{
-		Name: "Logan",
-		Kind: "Log",
-	}
-
-	Infod("This is some data", test)
+	Infod("This is some data", data)
 
 	time.Sleep(3 * time.Second)
 }

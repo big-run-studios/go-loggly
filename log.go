@@ -47,10 +47,10 @@ type logger struct {
 }
 
 type logMessage struct {
-	Timestamp string      `json:"timestamp"`
-	Level     string      `json:"level"`
-	Message   string      `json:"message"`
-	Metadata  interface{} `json:"metadata"`
+	Timestamp string                 `json:"timestamp"`
+	Level     string                 `json:"level"`
+	Message   string                 `json:"message"`
+	Data      map[string]interface{} `json:"data"`
 }
 
 // SetupLogger creates a new loggly logger.
@@ -100,8 +100,8 @@ func Debugln(output string) {
 }
 
 // Debugd prints output string and data.
-func Debugd(output string, d interface{}) {
-	buildAndShipMessage(output, "DEBUG", false, d)
+func Debugd(output string, data map[string]interface{}) {
+	buildAndShipMessage(output, "DEBUG", false, data)
 }
 
 // Debugf prints the formatted output.
@@ -120,8 +120,8 @@ func Infof(format string, a ...interface{}) {
 }
 
 // Infod prints output string and data.
-func Infod(output string, d interface{}) {
-	buildAndShipMessage(output, "INFO", false, d)
+func Infod(output string, data map[string]interface{}) {
+	buildAndShipMessage(output, "INFO", false, data)
 }
 
 // Warnln prints the output.
@@ -135,8 +135,8 @@ func Warnf(format string, a ...interface{}) {
 }
 
 // Warnd prints output string and data.
-func Warnd(output string, d interface{}) {
-	buildAndShipMessage(output, "WARN", false, d)
+func Warnd(output string, data map[string]interface{}) {
+	buildAndShipMessage(output, "WARN", false, data)
 }
 
 // Errorln prints the output.
@@ -150,8 +150,8 @@ func Errorf(format string, a ...interface{}) {
 }
 
 // Errord prints output string and data.
-func Errord(output string, d interface{}) {
-	buildAndShipMessage(output, "ERROR", false, d)
+func Errord(output string, data map[string]interface{}) {
+	buildAndShipMessage(output, "ERROR", false, data)
 }
 
 // Fatalln prints the output.
@@ -165,30 +165,30 @@ func Fatalf(format string, a ...interface{}) {
 }
 
 // Fatald prints output string and data.
-func Fatald(output string, d interface{}) {
-	buildAndShipMessage(output, "FATAL", true, d)
+func Fatald(output string, data map[string]interface{}) {
+	buildAndShipMessage(output, "FATAL", true, data)
 
 }
 
 // buildAndShipMessage creates the *logMessage to be send to loggly (adding current time) and ship it (send or add to the buffer)
-func buildAndShipMessage(output string, messageType string, exit bool, d interface{}) {
+func buildAndShipMessage(output string, messageType string, exit bool, data map[string]interface{}) {
 	if loggerSingleton.Level > LogLevelDebug {
 		return
 	}
 
 	var formattedOutput string
 
-	if d == nil {
+	if data == nil {
 		// Format message.
 		formattedOutput = fmt.Sprintf("%v [%s] %s", time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output)
 	} else {
 		// Format message.
-		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, d)
+		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, data)
 	}
 
 	fmt.Println(formattedOutput)
 
-	message := newMessage(time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, d)
+	message := newMessage(time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, data)
 
 	// Send message to loggly.
 	ship(message)
@@ -199,12 +199,12 @@ func buildAndShipMessage(output string, messageType string, exit bool, d interfa
 }
 
 // newMessage creates a logMessage and return a pointer to it
-func newMessage(timestamp string, level string, message string, data ...interface{}) *logMessage {
+func newMessage(timestamp string, level string, message string, data map[string]interface{}) *logMessage {
 	formatedMessage := &logMessage{
 		Timestamp: timestamp,
 		Level:     level,
 		Message:   message,
-		Metadata:  data,
+		Data:      data,
 	}
 
 	return formatedMessage
