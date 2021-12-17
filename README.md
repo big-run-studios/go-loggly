@@ -1,4 +1,4 @@
-# go-loggly
+# Forked from [go-loggly](https://github.com/parkhub/go-loggly)
 
 This package provides the ability to use both bulk and single log endpoint to ship your logs to loggly.  You must provide a token generated from loggly.
 

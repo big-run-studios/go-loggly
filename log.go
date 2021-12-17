@@ -189,7 +189,7 @@ func buildAndShipMessage(output string, messageType string, exit bool, d interfa
 
 	fmt.Println(formattedOutput)
 
-	message := newMessage(time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, nil)
+	message := newMessage(time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, d)
 
 	// Send message to loggly.
 	ship(message)
