@@ -421,21 +421,25 @@ var dataMessagesRegex = regexp.MustCompile(`@\w*\b`)
 // Also return data used in the message, to be used later in message to be sent to loggly.
 // Example: format="example @Data message @Used", a=[1234, "text"] will return
 // message="example 1234 message text" - data={"Data": 1234, "Used": "text"}
-func formatDataMessages(format string, a ...interface{}) (message string, data map[string]interface{}) {
+func formatDataMessages(format string, values ...interface{}) (message string, data map[string]interface{}) {
 	i := 0
-	data = make(map[string]interface{}, len(a))
-	message = dataMessagesRegex.ReplaceAllStringFunc(format, func(s string) string {
-		if i >= len(a) {
+	data = make(map[string]interface{}, len(values))
+	message = dataMessagesRegex.ReplaceAllStringFunc(format, func(expressionFound string) string {
+		if i >= len(values) {
 			return "[FORMAT ERROR]"
 		}
 
-		if len(s) <= 1 {
-			return s
+		if len(expressionFound) <= 1 {
+			return expressionFound
 		}
 
-		data[s[1:]] = a[i]
+		dataName := expressionFound[1:]
+		dataValue := values[i]
 		i++
-		return fmt.Sprintf("%v", a[i-1])
+
+		data[dataName] = dataValue
+
+		return fmt.Sprintf("%v=%v", dataName, dataValue)
 	})
 	return message, data
 }

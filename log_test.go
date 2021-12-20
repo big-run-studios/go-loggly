@@ -76,8 +76,8 @@ func TestFatalf(t *testing.T) {
 }
 
 func TestFormatDataMessages(t *testing.T) {
-	message, data := formatDataMessages("@UserId unlocked gacha @GachaId", "<USERID>", 5)
-	expectedMessage := "<USERID> unlocked gacha 5"
+	message, data := formatDataMessages("@UserId unlocked @GachaId", "<USERID>", 5)
+	expectedMessage := "UserId=<USERID> unlocked GachaId=5"
 	if message != expectedMessage {
 		t.Errorf("Expected %s, got %s", expectedMessage, message)
 	}
