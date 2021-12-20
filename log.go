@@ -119,8 +119,11 @@ func Debugf(format string, a ...interface{}) {
 // and replacing with given values. Data then will be logged like {"Field": "value"}.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
-func Debugdf(format string, values ...interface{}) {
-	Debugd(formatDataMessages(format, values...))
+// Returns the formatted message
+func Debugdf(format string, values ...interface{}) string {
+	message, data := formatDataMessages(format, values...)
+	Debugd(message, data)
+	return message
 }
 
 // Infoln prints the output.
@@ -142,8 +145,11 @@ func Infod(output string, data map[string]interface{}) {
 // and replacing with given values. Data then will be logged like {"Field": "value"}.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
-func Infodf(format string, values ...interface{}) {
-	Infod(formatDataMessages(format, values...))
+// Returns the formatted message
+func Infodf(format string, values ...interface{}) string {
+	message, data := formatDataMessages(format, values...)
+	Infod(message, data)
+	return message
 }
 
 // Warnln prints the output.
@@ -165,8 +171,11 @@ func Warnd(output string, data map[string]interface{}) {
 // and replacing with given values. Data then will be logged like {"Field": "value"}.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
-func Warndf(format string, values ...interface{}) {
-	Warnd(formatDataMessages(format, values...))
+// Returns the formatted message
+func Warndf(format string, values ...interface{}) string {
+	message, data := formatDataMessages(format, values...)
+	Warnd(message, data)
+	return message
 }
 
 // Errorln prints the output.
@@ -188,8 +197,11 @@ func Errord(output string, data map[string]interface{}) {
 // and replacing with given values. Data then will be logged like {"Field": "value"}.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
-func Errordf(format string, values ...interface{}) {
-	Errord(formatDataMessages(format, values...))
+// Returns the formatted message
+func Errordf(format string, values ...interface{}) string {
+	message, data := formatDataMessages(format, values...)
+	Errord(message, data)
+	return message
 }
 
 // Fatalln prints the output.
@@ -211,8 +223,11 @@ func Fatald(output string, data map[string]interface{}) {
 // and replacing with given values. Data then will be logged like {"Field": "value"}.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
-func Fataldf(format string, values ...interface{}) {
-	Fatald(formatDataMessages(format, values...))
+// Returns the formatted message
+func Fataldf(format string, values ...interface{}) string {
+	message, data := formatDataMessages(format, values...)
+	Fatald(message, data)
+	return message
 }
 
 // buildAndShipMessage creates the *logMessage to be send to loggly (adding current time) and ship it (send or add to the buffer)
