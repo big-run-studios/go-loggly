@@ -230,6 +230,13 @@ func Fataldf(format string, values ...interface{}) string {
 	return message
 }
 
+const logglyDateFormat = "2006-01-02T15:04:05.9999Z"
+
+// getNowDate returns the current date as string in a valid format for loggly
+func getNowDate() string {
+	return time.Now().Format(logglyDateFormat)
+}
+
 // buildAndShipMessage creates the *logMessage to be send to loggly (adding current time) and ship it (send or add to the buffer)
 func buildAndShipMessage(output string, messageType string, exit bool, data map[string]interface{}) {
 	if loggerSingleton.Level > LogLevelDebug {
@@ -240,15 +247,15 @@ func buildAndShipMessage(output string, messageType string, exit bool, data map[
 
 	if data == nil {
 		// Format message.
-		formattedOutput = fmt.Sprintf("%v [%s] %s", time.Now().Format("2006-01-02T15:04:05.9999Z"), messageType, output)
+		formattedOutput = fmt.Sprintf("%v [%s] %s", getNowDate(), messageType, output)
 	} else {
 		// Format message.
-		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", time.Now().Format("2006-01-02T15:04:05.9999Z"), messageType, output, data)
+		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", getNowDate(), messageType, output, data)
 	}
 
 	fmt.Println(formattedOutput)
 
-	message := newMessage(time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, data)
+	message := newMessage(getNowDate(), messageType, output, data)
 
 	// Send message to loggly.
 	ship(message)
