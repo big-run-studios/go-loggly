@@ -240,10 +240,10 @@ func buildAndShipMessage(output string, messageType string, exit bool, data map[
 
 	if data == nil {
 		// Format message.
-		formattedOutput = fmt.Sprintf("%v [%s] %s", time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output)
+		formattedOutput = fmt.Sprintf("%v [%s] %s", time.Now().Format("2006-01-02T15:04:05.9999Z"), messageType, output)
 	} else {
 		// Format message.
-		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", time.Now().Format("2013-10-11T22:14:15.003Z"), messageType, output, data)
+		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", time.Now().Format("2006-01-02T15:04:05.9999Z"), messageType, output, data)
 	}
 
 	fmt.Println(formattedOutput)
