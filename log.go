@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -32,6 +33,11 @@ const (
 	// LogLevelFatal fatal log level.
 	LogLevelFatal Level = 4
 )
+
+// String returns the actual currency string to be used in the wallet
+func (t Level) String() string {
+	return [...]string{"DEBUG", "INFO", "WARN", "ERROR", "FATAL"}[t]
+}
 
 type logger struct {
 	token         string
@@ -101,12 +107,20 @@ func Debugln(output string) {
 
 // Debugd prints output string and data.
 func Debugd(output string, data map[string]interface{}) {
-	buildAndShipMessage(output, "DEBUG", false, data)
+	buildAndShipMessage(output, LogLevelDebug.String(), false, data)
 }
 
 // Debugf prints the formatted output.
 func Debugf(format string, a ...interface{}) {
 	Debugln(fmt.Sprintf(format, a...))
+}
+
+// Debugdf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
+// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// Example: format="example @Data message @Used", a=[1234, "text"] will log
+// message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
+func Debugdf(format string, values ...interface{}) {
+	Debugd(formatDataMessages(format, values...))
 }
 
 // Infoln prints the output.
@@ -121,7 +135,15 @@ func Infof(format string, a ...interface{}) {
 
 // Infod prints output string and data.
 func Infod(output string, data map[string]interface{}) {
-	buildAndShipMessage(output, "INFO", false, data)
+	buildAndShipMessage(output, LogLevelInfo.String(), false, data)
+}
+
+// Infodf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
+// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// Example: format="example @Data message @Used", a=[1234, "text"] will log
+// message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
+func Infodf(format string, values ...interface{}) {
+	Infod(formatDataMessages(format, values...))
 }
 
 // Warnln prints the output.
@@ -136,7 +158,15 @@ func Warnf(format string, a ...interface{}) {
 
 // Warnd prints output string and data.
 func Warnd(output string, data map[string]interface{}) {
-	buildAndShipMessage(output, "WARN", false, data)
+	buildAndShipMessage(output, LogLevelWarn.String(), false, data)
+}
+
+// Warndf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
+// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// Example: format="example @Data message @Used", a=[1234, "text"] will log
+// message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
+func Warndf(format string, values ...interface{}) {
+	Warnd(formatDataMessages(format, values...))
 }
 
 // Errorln prints the output.
@@ -151,7 +181,15 @@ func Errorf(format string, a ...interface{}) {
 
 // Errord prints output string and data.
 func Errord(output string, data map[string]interface{}) {
-	buildAndShipMessage(output, "ERROR", false, data)
+	buildAndShipMessage(output, LogLevelError.String(), false, data)
+}
+
+// Errordf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
+// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// Example: format="example @Data message @Used", a=[1234, "text"] will log
+// message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
+func Errordf(format string, values ...interface{}) {
+	Errord(formatDataMessages(format, values...))
 }
 
 // Fatalln prints the output.
@@ -166,8 +204,15 @@ func Fatalf(format string, a ...interface{}) {
 
 // Fatald prints output string and data.
 func Fatald(output string, data map[string]interface{}) {
-	buildAndShipMessage(output, "FATAL", true, data)
+	buildAndShipMessage(output, LogLevelFatal.String(), true, data)
+}
 
+// Fataldf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
+// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// Example: format="example @Data message @Used", a=[1234, "text"] will log
+// message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
+func Fataldf(format string, values ...interface{}) {
+	Fatald(formatDataMessages(format, values...))
 }
 
 // buildAndShipMessage creates the *logMessage to be send to loggly (adding current time) and ship it (send or add to the buffer)
@@ -346,4 +391,29 @@ func putMessagesBackToBuffer(messagesBuffer []*logMessage) {
 	loggerSingleton.Lock()
 	defer loggerSingleton.Unlock()
 	loggerSingleton.buffer = append(loggerSingleton.buffer, messagesBuffer...)
+}
+
+var dataMessagesRegex = regexp.MustCompile(`@\w*\b`)
+
+// formatDataMessages format messages replacing words that start with '@' with the string value of the element in 'a'.
+// Also return data used in the message, to be used later in message to be sent to loggly.
+// Example: format="example @Data message @Used", a=[1234, "text"] will return
+// message="example 1234 message text" - data={"Data": 1234, "Used": "text"}
+func formatDataMessages(format string, a ...interface{}) (message string, data map[string]interface{}) {
+	i := 0
+	data = make(map[string]interface{}, len(a))
+	message = dataMessagesRegex.ReplaceAllStringFunc(format, func(s string) string {
+		if i >= len(a) {
+			return "[FORMAT ERROR]"
+		}
+
+		if len(s) <= 1 {
+			return s
+		}
+
+		data[s[1:]] = a[i]
+		i++
+		return fmt.Sprintf("%v", a[i-1])
+	})
+	return message, data
 }
