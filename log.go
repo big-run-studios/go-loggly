@@ -116,7 +116,8 @@ func Debugf(format string, a ...interface{}) {
 }
 
 // Debugdf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
-// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// and replacing with given values. Data then will be logged like {"Field": "value"}. Special format verbs are
+// supported with fields, so for example @Number%04d is supported to format integers. Default value is %v.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
 // Returns the formatted message
@@ -142,7 +143,8 @@ func Infod(output string, data map[string]interface{}) {
 }
 
 // Infodf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
-// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// and replacing with given values. Data then will be logged like {"Field": "value"}. Special format verbs are
+// supported with fields, so for example @Number%04d is supported to format integers. Default value is %v.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
 // Returns the formatted message
@@ -168,7 +170,8 @@ func Warnd(output string, data map[string]interface{}) {
 }
 
 // Warndf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
-// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// and replacing with given values. Data then will be logged like {"Field": "value"}. Special format verbs are
+// supported with fields, so for example @Number%04d is supported to format integers. Default value is %v.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
 // Returns the formatted message
@@ -194,7 +197,8 @@ func Errord(output string, data map[string]interface{}) {
 }
 
 // Errordf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
-// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// and replacing with given values. Data then will be logged like {"Field": "value"}. Special format verbs are
+// supported with fields, so for example @Number%04d is supported to format integers. Default value is %v.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
 // Returns the formatted message
@@ -220,7 +224,8 @@ func Fatald(output string, data map[string]interface{}) {
 }
 
 // Fataldf prints the formatted output. Special format is used, looking for expressions like @Field in the 'output',
-// and replacing with given values. Data then will be logged like {"Field": "value"}.
+// and replacing with given values. Data then will be logged like {"Field": "value"}. Special format verbs are
+// supported with fields, so for example @Number%04d is supported to format integers. Default value is %v.
 // Example: format="example @Data message @Used", a=[1234, "text"] will log
 // message="example 1234 message text" and data={"Data": 1234, "Used": "text"}
 // Returns the formatted message
@@ -415,7 +420,7 @@ func putMessagesBackToBuffer(messagesBuffer []*logMessage) {
 	loggerSingleton.buffer = append(loggerSingleton.buffer, messagesBuffer...)
 }
 
-var dataMessagesRegex = regexp.MustCompile(`@\w*\b`)
+var dataMessagesRegex = regexp.MustCompile(`@\w*%?[#+.\-\w]*\b`)
 
 // formatDataMessages format messages replacing words that start with '@' with the string value of the element in 'a'.
 // Also return data used in the message, to be used later in message to be sent to loggly.
@@ -433,13 +438,24 @@ func formatDataMessages(format string, values ...interface{}) (message string, d
 			return expressionFound
 		}
 
-		dataName := expressionFound[1:]
+		defaultValueFormat := "%v"
+		var dataName string
+		if strings.Contains(expressionFound, "%") {
+			dataValueParts := strings.Split(expressionFound[1:], "%")
+			dataName = dataValueParts[0]
+			if len(dataValueParts) > 1 {
+				defaultValueFormat = "%" + dataValueParts[1]
+			}
+		} else {
+			dataName = expressionFound[1:]
+		}
+
 		dataValue := values[i]
 		i++
 
 		data[dataName] = dataValue
 
-		return fmt.Sprintf("%v=%v", dataName, dataValue)
+		return fmt.Sprintf("%v="+defaultValueFormat, dataName, dataValue)
 	})
 	return message, data
 }

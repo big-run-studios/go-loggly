@@ -75,7 +75,7 @@ func TestFatalf(t *testing.T) {
 	Fatalf("This is an error %d.", 10000)
 }
 
-func TestFormatDataMessages(t *testing.T) {
+func TestFormatDataMessagesSimpleMessage(t *testing.T) {
 	message, data := formatDataMessages("@UserId unlocked @GachaId", "<USERID>", 5)
 	expectedMessage := "UserId=<USERID> unlocked GachaId=5"
 	if message != expectedMessage {
@@ -105,4 +105,54 @@ func TestFormatDataMessageWithNoReplaces(t *testing.T) {
 	if len(data) != 0 {
 		t.Errorf("Expected data len = 0, got %v - data=%v", len(data), data)
 	}
+}
+
+func TestFormatDataMessagesComplexMessagesAndFormats(t *testing.T) {
+	type testStruct struct {
+		Name string
+		Age  int
+	}
+
+	complexData := testStruct{
+		Name: "name",
+		Age:  2,
+	}
+
+	message, data := formatDataMessages("testStruct @Struct", complexData)
+	expectedMessage := "testStruct Struct={name 2}"
+	if message != expectedMessage {
+		t.Errorf("Expected %s, got %s", expectedMessage, message)
+	}
+	if len(data) != 1 {
+		t.Errorf("Expected data len = 1, got %v", len(data))
+	}
+
+	if data["Struct"] != complexData {
+		t.Errorf("Expected data['Struct'] = %+v, got %+v", complexData, data["Struct"])
+	}
+
+	message, data = formatDataMessages("testStruct @Struct%+v", complexData)
+	expectedMessage = "testStruct Struct={Name:name Age:2}"
+	if message != expectedMessage {
+		t.Errorf("Expected %s, got %s", expectedMessage, message)
+	}
+
+	message, data = formatDataMessages("testFloat @Float%.2f", 1.23456)
+	expectedMessage = "testFloat Float=1.23"
+	if message != expectedMessage {
+		t.Errorf("Expected %s, got %s", expectedMessage, message)
+	}
+
+	message, data = formatDataMessages("@string%-6s", "cafe")
+	expectedMessage = "string=cafe  "
+	if message != expectedMessage {
+		t.Errorf("Expected %s, got %s", expectedMessage, message)
+	}
+
+	message, data = formatDataMessages("@int%04d", 15)
+	expectedMessage = "int=0015"
+	if message != expectedMessage {
+		t.Errorf("Expected %s, got %s", expectedMessage, message)
+	}
+
 }
