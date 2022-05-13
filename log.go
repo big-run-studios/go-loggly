@@ -356,6 +356,8 @@ func flush() {
 
 	body := formatBulkMessages(messages)
 
+	fmt.Println("Body: ", body)
+
 	resp, err := http.Post(loggerSingleton.url, "text/plain", bytes.NewBuffer([]byte(body)))
 	if err != nil {
 		if loggerSingleton.debugMode {
