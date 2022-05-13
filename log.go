@@ -244,10 +244,6 @@ func getNowDate() string {
 
 // buildAndShipMessage creates the *logMessage to be send to loggly (adding current time) and ship it (send or add to the buffer)
 func buildAndShipMessage(output string, messageType string, exit bool, data map[string]interface{}) {
-	if loggerSingleton.Level > LogLevelDebug {
-		return
-	}
-
 	var formattedOutput string
 
 	if data == nil {
