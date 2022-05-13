@@ -351,6 +351,12 @@ func flush() {
 	loggerSingleton.Unlock()
 
 	body := formatBulkMessages(messages)
+	if len(body) == 0 {
+		if loggerSingleton.debugMode {
+			fmt.Println("No logs to send: Status OK")
+		}
+		return
+	}
 
 	resp, err := http.Post(loggerSingleton.url, "text/plain", bytes.NewBuffer([]byte(body)))
 	if err != nil {
