@@ -296,7 +296,7 @@ func ship(message *logMessage) {
 func handleLogMessage(message *logMessage) {
 	requestBody, err := json.Marshal(message)
 
-	fmt.Println("Body: ", body)
+	fmt.Println("Body: ", string(requestBody))
 
 	if err != nil {
 		fmt.Printf("There was an error marshalling log message: %s", err)
