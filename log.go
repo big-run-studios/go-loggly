@@ -277,6 +277,8 @@ func flush() {
 
 	loggerSingleton.buffer = nil
 
+	println("Body: "+ body)
+
 	resp, err := http.Post(loggerSingleton.url, "text/plain", bytes.NewBuffer([]byte(body)))
 
 	if resp.StatusCode == 403 {
