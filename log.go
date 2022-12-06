@@ -273,7 +273,9 @@ func buildAndShipMessage(output string, messageType string, exit bool, data map[
 		formattedOutput = fmt.Sprintf("%v [%s] %s %+v", getNowDate(), messageType, output, data)
 	}
 
-	fmt.Println(formattedOutput)
+	if loggerSingleton.debugMode {
+		fmt.Println(formattedOutput)
+	}
 
 	message := newMessage(getNowDate(), messageType, output, data)
 
