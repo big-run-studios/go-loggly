@@ -362,17 +362,17 @@ func flush() {
 	if err != nil {
 		if loggerSingleton.debugMode {
 			fmt.Printf("There was an error shipping the logs to loggy: %s", err)
-			putMessagesBackToBuffer(messages)
-			return
 		}
+		putMessagesBackToBuffer(messages)
+		return
 	}
 
 	if resp.StatusCode == 403 {
 		if loggerSingleton.debugMode {
 			fmt.Println("Token is invalid", resp.Status)
-			putMessagesBackToBuffer(messages)
-			return
 		}
+		putMessagesBackToBuffer(messages)
+		return
 	}
 
 	if resp.StatusCode == 200 {
