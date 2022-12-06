@@ -6,14 +6,14 @@ This package provides the ability to use both bulk and single log endpoint to sh
 
 ### ([godoc](//godoc.org/github.com/parkhub/go-loggly))
 
-    go get github.com/parkhub/go-loggly
+    go get github.com/big-run-studios/go-loggly
 
 ## Setting up your logger
 ```
 package main
 
 import (
-	log "github.com/parkhub/go-loggly"
+	log "github.com/big-run-studios/go-loggly"
 )
 
 func main() {
