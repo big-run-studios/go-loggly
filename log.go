@@ -107,6 +107,10 @@ func Debugln(output string) {
 
 // Debugd prints output string and data.
 func Debugd(output string, data map[string]interface{}) {
+	if loggerSingleton == nil || loggerSingleton.Level > LogLevelDebug {
+		return
+	}
+
 	buildAndShipMessage(output, LogLevelDebug.String(), false, data)
 }
 
@@ -139,6 +143,9 @@ func Infof(format string, a ...interface{}) {
 
 // Infod prints output string and data.
 func Infod(output string, data map[string]interface{}) {
+	if loggerSingleton == nil || loggerSingleton.Level > LogLevelInfo {
+		return
+	}
 	buildAndShipMessage(output, LogLevelInfo.String(), false, data)
 }
 
@@ -166,6 +173,10 @@ func Warnf(format string, a ...interface{}) {
 
 // Warnd prints output string and data.
 func Warnd(output string, data map[string]interface{}) {
+	if loggerSingleton == nil || loggerSingleton.Level > LogLevelWarn {
+		return
+	}
+
 	buildAndShipMessage(output, LogLevelWarn.String(), false, data)
 }
 
@@ -193,6 +204,10 @@ func Errorf(format string, a ...interface{}) {
 
 // Errord prints output string and data.
 func Errord(output string, data map[string]interface{}) {
+	if loggerSingleton == nil || loggerSingleton.Level > LogLevelError {
+		return
+	}
+
 	buildAndShipMessage(output, LogLevelError.String(), false, data)
 }
 
@@ -220,6 +235,10 @@ func Fatalf(format string, a ...interface{}) {
 
 // Fatald prints output string and data.
 func Fatald(output string, data map[string]interface{}) {
+	if loggerSingleton == nil || loggerSingleton.Level > LogLevelFatal {
+		return
+	}
+
 	buildAndShipMessage(output, LogLevelFatal.String(), true, data)
 }
 
@@ -300,8 +319,8 @@ func handleLogMessage(message *logMessage) {
 	if err != nil {
 		if loggerSingleton.debugMode {
 			fmt.Printf("There was an error shipping the logs to loggy: %s", err)
-			return
 		}
+		return
 	}
 
 	if resp.StatusCode == 403 {
